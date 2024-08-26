@@ -18,6 +18,24 @@
         border-color: #333;
         background-color: #f9f9f9;
       }
+      .spinner {
+        border: 4px solid transparent;
+        border-radius: 50%;
+        border-top: 4px solid white;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: none;
+        margin-right: 8px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
   <body>
@@ -40,11 +58,28 @@
 
           <button
             type="submit"
-            class="mt-7 h-14 bg-black text-white py-2 rounded"
+            class="mt-7 h-14 bg-black text-white py-2 rounded flex items-center justify-center"
+            id="submit-button"
           >
-            Submit
+            <div class="spinner" id="spinner"></div>
+            <span id="button-text">Submit</span>
           </button>
         </form>
+
+        <div class="mt-4">
+          <textarea
+            id="response-text"
+            rows="2"
+            class="w-full p-2 border border-gray-300 rounded"
+            readonly
+          ></textarea>
+          <button
+            id="copy-button"
+            class="mt-2 bg-blue-500 text-white py-2 px-4 rounded"
+          >
+            Copy to Clipboard
+          </button>
+        </div>
       </div>
     </div>
 
@@ -52,6 +87,11 @@
       const dropZone = document.getElementById("drop-zone");
       const fileInput = document.getElementById("file");
       const fileForm = document.getElementById("file-form");
+      const responseText = document.getElementById("response-text");
+      const copyButton = document.getElementById("copy-button");
+      const submitButton = document.getElementById("submit-button");
+      const spinner = document.getElementById("spinner");
+      const buttonText = document.getElementById("button-text");
 
       dropZone.addEventListener("click", () => fileInput.click());
 
@@ -80,29 +120,42 @@
       });
 
       fileForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const formData = new FormData(fileForm);
-  const file = formData.get("file");
+        e.preventDefault();
+        spinner.style.display = "inline-block";
+        buttonText.textContent = "Uploading...";
 
-  fetch("http://192.168.64.4:8080", {
-    method: "PUT",
-    headers: {
-      "Content-Type": file.type,
-      "X-Filename": file.name,
-    },
-    body: file,
-  })
-    .then((response) => {
-      return response.text();
-    })
-    .then((data) => {
-      console.log("Server Output:", data);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-});
+        const formData = new FormData(fileForm);
+        const file = formData.get("file");
 
+        fetch("https://g33k.holbrook.no:443", {
+          method: "PUT",
+          headers: {
+            "Content-Type": file.type,
+            "X-Filename": file.name,
+          },
+          body: file,
+        })
+          .then((response) => {
+            return response.text();
+          })
+          .then((data) => {
+            spinner.style.display = "none";
+            buttonText.textContent = "Submit";
+            const encodedResponse = encodeURIComponent(data);
+            const link = `https://g33k.holbrook.no/${encodedResponse}`;
+            responseText.value = link;
+          })
+          .catch((error) => {
+            spinner.style.display = "none";
+            buttonText.textContent = "Submit";
+            responseText.value = `Error: ${error}`;
+          });
+      });
+
+      copyButton.addEventListener("click", () => {
+        responseText.select();
+        document.execCommand("copy");
+      });
     </script>
   </body>
 </html>
