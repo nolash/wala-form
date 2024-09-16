@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/alpinejs" defer></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="alpine.js" defer></script>
+    <script src="tailwind.js"></script>
     <title>Wala Form</title>
     <style>
       .drop-zone {
@@ -65,7 +65,7 @@
       <div
         class="flex flex-col border border-[1px] border-black w-full h-fit rounded-lg px-6 py-6"
       >
-        <h3 class="text-black text-center text-base my-4">Encrypted File Transfer</h3>
+        <h3 class="text-black text-center text-base my-4">Content-Addressed File Transfer</h3>
 
         <form class="flex flex-col" id="file-form">
           <label for="file" class="mt-3 mb-2">Enter file</label>
@@ -148,7 +148,7 @@
         const formData = new FormData(fileForm);
         const file = formData.get("file");
 
-        fetch("https://g33k.holbrook.no:443", {
+        fetch("https://g33k.holbrook.no", {
           method: "PUT",
           headers: {
             "Content-Type": file.type,
